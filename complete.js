@@ -1,3 +1,12 @@
+const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+const ask = (query) => new Promise((resolve) => readline.question(query, resolve));
+
+const temperature = 1.0;
+
 async function requestCompletion(prompt) {
     try {
         const response = await fetch("http://localhost:1234/v1/completions", {
@@ -8,7 +17,7 @@ async function requestCompletion(prompt) {
             body: JSON.stringify({
                 model: 'local-model',
                 prompt: prompt,
-                temperature: 0.1,
+                temperature: temperature,
                 max_tokens: 1000
             })
         });
@@ -33,15 +42,8 @@ async function printCompletion(prompt) {
     }
 }
 
-const readline = require('readline').createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
-const ask = (query) => new Promise((resolve) => readline.question(query, resolve));
-
 async function main() {
-    console.log("Type 'exit' to quit.\n\n");
+    console.log(`REPL started. Available commands: 'exit'. Temperature: ${temperature}\n`);
 
     while (true) {
         const input = await ask("> ");
