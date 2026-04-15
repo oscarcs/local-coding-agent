@@ -85,9 +85,9 @@ function parseToolCall(generatedText) {
     return { name, parameters };
 }
 
-function executeTool(toolCall) {
+async function executeTool(toolCall) {
     const tool = toolDefinitions.find(t => t.name === toolCall.name);
-    const result = tool ? tool.resolve(toolCall.parameters) : { error: `Tool ${toolCall.name} not found!` };
+    const result = tool ? await tool.resolve(toolCall.parameters) : { error: `Tool ${toolCall.name} not found!` };
     return `<|tool_response|>\n${gemmaStringify(result)}\n<tool_response|>\n`;
 }
 
@@ -98,7 +98,14 @@ const toolDefinitions = [
         parameters: {
             location: "string"
         },
-        resolve: () => "19 degrees and sunny."
+        resolve: async (params) => {
+            if (params.location) {
+                const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${encodeURIComponent(params.location)}?key=&include=current&unitGroup=metric`;
+                const res = await fetch(url);
+                const body = await res.json();
+                return res.ok ? gemmaStringify(body.currentConditions) : `Error fetching weather: ${JSON.stringify(res)}`;
+            }
+        }
     }
 ];
 
@@ -141,8 +148,8 @@ async function main() {
             if (generatedText.includes("<|tool_call>")) {
                 try {
                     const toolCall = parseToolCall(generatedText);
-                    const resultString = executeTool(toolCall);
-                    
+                    const resultString = await executeTool(toolCall);
+
                     conversationHistory += `${generatedText}<tool_call|>\n${resultString}`;
                 }
                 catch (e) {
