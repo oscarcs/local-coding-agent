@@ -1,0 +1,12 @@
+{
+  "name": "local-coding-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Basic local programming agent with Gemma 4 prompt formatting and a simple TUI.",
+  "main": "programmer.js",
+  "scripts": {
+    "start": "node programmer.js",
+    "start:help": "node -e \"console.log('Usage: npm start -- [--dir <path>]\\n       npm start -- [--directory <path>]')\"",
+    "debug": "node debug-agent.js"
+  }
+}
